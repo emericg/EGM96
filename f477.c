@@ -1,8 +1,26 @@
-/*translation of the well-known f477.f to C
- actually this source is folklore
-d.ineiev<ineiev@yahoo.co.uk> wrote down and put under zlib/libpng license
-(see README.txt)*/
-/* this program is designed for the calculation of a geoid undulation
+/*
+ * Copyright (c) 2006 D.Ineiev <ineiev@yahoo.co.uk>
+ * Copyright (c) 2020 Emeric Grange <emeric.grange@gmail.com>
+ *
+ * This software is provided 'as-is', without any express or implied warranty.
+ * In no event will the authors be held liable for any damages arising from
+ * the use of this software.
+ *
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
+ *
+ * 1. The origin of this software must not be misrepresented; you must not
+ *    claim that you wrote the original software. If you use this software
+ *    in a product, an acknowledgment in the product documentation would be
+ *    appreciated but is not required.
+ * 2. Altered source versions must be plainly marked as such, and must not be
+ *    misrepresented as being the original software.
+ * 3. This notice may not be removed or altered from any source distribution.
+ */
+
+/*
+ this program is designed for the calculation of a geoid undulation
  at a point whose latitude and longitude is specified. the program
  is designed to use the potential coefficient model egm96 and a
  set of spherical harmonic coefficients of a correction term.
@@ -26,8 +44,6 @@ d.ineiev<ineiev@yahoo.co.uk> wrote down and put under zlib/libpng license
  State University, Columbus, 1982
  this program was put in this form in Dec 1996.
  rhrapp.f477.nonly
- 
-
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
   the input files consist of:
@@ -47,7 +63,9 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
    dimensions of p,q,hc,hs must be at least ((maxn+1)*(maxn+2))/2,
    dimensions of sinml,cosml must be at least maxn,
         where maxn is maximum order of computation
- the current dimensions are set for a maximum degree of 360*/
+ the current dimensions are set for a maximum degree of 360
+*/
+
 #include<stdio.h>
 #include<math.h>
 static FILE*f_1,*f_14,*f_12,*f_20;
