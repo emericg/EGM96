@@ -20,34 +20,26 @@
  */
 
 /*
- this program is designed for the calculation of a geoid undulation
- at a point whose latitude and longitude is specified. the program
- is designed to use the potential coefficient model egm96 and a
- set of spherical harmonic coefficients of a correction term.
- the correction term is composed of several different components
- the primary one being the conversion of a height anomaly to a geoid
- undulation. the principles of this procedure were initially
- described in the paper: use of potential coefficient models for geoid
- undulation determination using a spherical harmonic representation
- of the height anomaly/geoid undulation difference by R.H. Rapp,
- Journal of Geodesy, 1996.
- this program is designed to be used with the constants of egm96
- and those of the wgs84(g873) system. the undulation will refer to
- the wgs84 ellipsoid.
- specific details on the undulation computation will be found in the
- joint project report describing the development of egm96.
- this program is a modification of the program described in the
- following report:
- a fortran program for the computation of gravimetric quantities from
- high degree spherical harmonic expansions, Richard H. Rapp,
- report 334, Department of Geodetic Science and Surveying, the Ohio
- State University, Columbus, 1982
- this program was put in this form in Dec 1996.
- rhrapp.f477.nonly
-
-dimensions of p,q,hc,hs must be at least ((maxn+1)*(maxn+2))/2,
-dimensions of sinml,cosml must be at least maxn, where maxn is maximum order of computation
-*/
+ * This program is designed for the calculation of a geoid undulation at a point
+ * whose latitude and longitude is specified.
+ *
+ * This program is designed to be used with the constants of EGM96 and those of
+ * the WGS84(g873) system. The undulation will refer to the WGS84 ellipsoid.
+ *
+ * It's designed to use the potential coefficient model EGM96 and a set of
+ * spherical harmonic coefficients of a correction term.
+ * The correction term is composed of several different components, the primary
+ * one being the conversion of a height anomaly to a geoid undulation.
+ * The principles of this procedure were initially described in the paper:
+ * - use of potential coefficient models for geoid undulation determination using
+ *   a spherical harmonic representation of the height anomaly/geoid undulation
+ *   difference by R.H. Rapp, Journal of Geodesy, 1996.
+ *
+ * This program is a modification of the program described in the following report:
+ * - a fortran program for the computation of gravimetric quantities from high
+ * degree spherical harmonic expansions, Richard H. Rapp, report 334, Department
+ * of Geodetic Science and Surveying, the Ohio State University, Columbus, 1982
+ */
 
 #include "EGM96.h"
 #include "EGM96_data.h"
