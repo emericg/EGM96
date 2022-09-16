@@ -1,29 +1,51 @@
 EGM96
 =====
 
+### Introduction
 
-## Introduction
-
-This C library is designed for the calculation of a geoid undulation at a point whose latitude and longitude is specified.
-
-**TL:DR** It's meant to correct altitudes given by GPS systems, that mesure altitude against the ellipsoid and needs to be corrected to match the geoid.
+This code is meant to correct the 'default' altitude measurements given by GPS systems, that measures altitude against the reference ellipsoid and needs to be corrected to match the actual geoid.  
+For a any given point whose latitude and longitude is specified, it will output an altitude offset.
 
 ### How to use
 
-The library is meant to be easy to use.
+The library is meant to be easy to use, and especially easy to embed into your own softwares.
 
-* Include in your project the three files _EEM96.c_, _EGM96.h_ and _EGM96_data.h_
-* Call the _egm96_compute_altitude_offset_ function:
+* Include these three files into your project: _EGM96.c_, _EGM96.h_ and _EGM96_data.h_
+* Call the _egm96_compute_altitude_offset()_ function:
 
-```
+```cpp
 /*!
  * \brief Compute the geoid undulation from the EGM96 potential coefficient model, for a given latitude and longitude.
- * \param latitude: Latitude in degrees.
- * \param longitude: Longitude in degrees.
+ * \param latitude: Latitude (in degrees).
+ * \param longitude: Longitude (in degrees).
  * \return The geoid undulation / altitude offset (in meters).
  */
-double egm96_compute_altitude_offset(double lat, double lon);
+double egm96_compute_altitude_offset(double latitude, double longitude);
 ```
+
+
+## About
+
+### About this implementation
+
+This implementation is a fork of [a project](https://sourceforge.net/projects/egm96-f477-c) by D.Ineiev, which is translation from Fortran to C of another [EGM96 implementation](https://earth-info.nga.mil/GandG/wgs84/gravitymod/egm96/egm96.html) from the [National Geospacial-intelligence Agency](https://earth-info.nga.mil/).
+
+The code has been cleaned up (a lot), the documentation improved, and most importantly the EGM96 correction and harmonic coefficients are now precomputed and embeded into an header file.
+
+This makes the code self sufficient (removing the need to access filesystem at run time) while saving a lot of both CPU time (precomputations are done once and offline) and disk space (reducing the total size from around 10.6 MB to less than 3.3 MB).
+
+### About the original implementation
+
+The program is designed to use the potential coefficient model EGM96 and a set of spherical harmonic coefficients of a correction term.  
+The correction term is composed of several different components. The primary one being the conversion of a height anomaly to a geoid undulation.  
+The principles of this procedure were initially described in the paper:
+- Use of potential coefficient models for geoid undulation determination using a spherical harmonic representation of the height anomaly/geoid undulation difference by R.H. Rapp, Journal of Geodesy, 1996.
+
+This program is designed to be used with the constants of EGM96 and those of the WGS84 (g873) system. The undulation will refer to the WGS84 ellipsoid.  
+
+Specific details on the undulation computation will be found in the joint project report describing the development of EGM96.  
+This program is a modification of the program described in the following report:
+- A fortran program for the computation of gravimetric quantities from high degree spherical harmonic expansions, Richard H. Rapp, report 334, Department of Geodetic Science and Surveying, the Ohio State University, Columbus, 1982.
 
 ### About the science
 
@@ -36,11 +58,6 @@ The **EGM96 geoid defines** the nominal sea level surface by means of a spherica
 In geodesy, a **reference ellipsoid** is a mathematically defined surface that approximates the geoid, which is the truer, imperfect figure of the Earth, or other planetary body, as opposed to a perfect, smooth, and unaltered sphere, which factors in the undulations of the bodies' gravity due to variations in the composition and density of the interior, as well as the subsequent flattening caused by the centrifugal force from the rotation of these massive objects (for planetary bodies that do rotate).
 
 ![geoid vs ellipsoid](about/geoid_vs_ellipsoid.png)
-
-### About the original implementation
-
-This project is a fork of [a project](https://sourceforge.net/projects/egm96-f477-c.) by D.Ineiev, containings a rought translation from Fortran to C of an [EGM96 implementation](https://earth-info.nga.mil/GandG/wgs84/gravitymod/egm96/egm96.html) from the [National Geospacial-intelligence Agency](https://earth-info.nga.mil/).
-
 
 
 ## Get involved!

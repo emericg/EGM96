@@ -26,9 +26,11 @@
 
 /* ************************************************************************** */
 
-#define _coeffs (65341) //!< Size of correction and harmonic coefficients arrays (361*181)
-#define _nmax   (360)   //!< Maximum degree and orders of harmonic coefficients.
-#define _361    (361)
+//! Size of correction and harmonic coefficients arrays (361*181)
+static const unsigned _coeffs = 65341;
+
+//! Maximum degree and orders of harmonic coefficients
+static const unsigned _nmax = 360;
 
 //! EGM96 correction and harmonic coefficients
 static double egm96_data[_coeffs+1][4];
@@ -53,20 +55,20 @@ void dhcsin(FILE *f_12)
     const double j10 = 0.121439275882e-13;
 
     unsigned n;
-    unsigned m = (((_nmax+1) * (_nmax+2)) / 2);
+    unsigned m = (((_nmax + 1) * (_nmax + 2)) / 2);
     for (n = 1; n <= m; n++)
     {
         egm96_data[n][2] = egm96_data[n][3] = 0;
     }
 
-    while (6 == fscanf(f_12, "%i %i %lf %lf %lf %lf", &n, &m, &c, &s, &ec, &es))
+    while (fscanf(f_12, "%i %i %lf %lf %lf %lf", &n, &m, &c, &s, &ec, &es) == 6)
     {
         if (n > _nmax) continue;
         n = ((n * (n + 1)) / 2) + m + 1;
         egm96_data[n][2] = c;
         egm96_data[n][3] = s;
     }
-    egm96_data[4][2] += j2 / sqrt(5);
+    egm96_data[4][2]  += j2 / sqrt(5);
     egm96_data[11][2] += j4 / 3.0;
     egm96_data[22][2] += j6 / sqrt(13);
     egm96_data[37][2] += j8 / sqrt(17);
@@ -92,7 +94,7 @@ void init_arrays()
 
         while (4 == fscanf(f_1, "%i %i %lg %lg", &n, &m, &t1, &t2))
         {
-            ig = ((n * (n+1)) / 2) + m + 1;
+            ig = ((n * (n + 1)) / 2) + m + 1;
             egm96_data[ig][0] = t1;
             egm96_data[ig][1] = t2;
         }
@@ -123,7 +125,8 @@ void write_arrays()
 
         for (unsigned i = 0; i <= _coeffs; i++)
         {
-            fprintf(precomp_out, "{%g,%g,%g,%g},\n", egm96_data[i][0], egm96_data[i][1], egm96_data[i][2], egm96_data[i][3]);
+            fprintf(precomp_out, "{%g,%g,%g,%g},\n",
+                    egm96_data[i][0], egm96_data[i][1], egm96_data[i][2], egm96_data[i][3]);
         }
 
         fprintf(precomp_out, "};\n\n");
@@ -136,16 +139,20 @@ void write_arrays()
 /* ************************************************************************** */
 
 /*!
- * \brief Main function.
+ * \brief Precompute coefficients for the main EGM96.c code.
  * \return 0 if success.
  *
  * The input files consist of:
  * - correction coefficient set ("CORRCOEF") => unit = 1
  * - potential coefficient set ("EGM96") => unit = 12
  * - points at which to compute ("INPUT.dat") => unit = 14
+ *
  * The output file is:
  * - computed geoid heights ("OUTPUT.dat") => unit = 20
- * - precomputed egm96_data.h (to use with the library)
+ * - precomputed egm96_data.h (to be used with the library)
+ *
+ * The precomputed coefficients are stored into a single C header file, and the
+ * disk space is reduced from around 10.6 MB of input data to about 3.3 MB.
  */
 int main(void)
 {
@@ -159,7 +166,7 @@ int main(void)
     {
         // read geodetic latitude,longitude at point undulation is wanted
         double flat, flon;
-        while (2 == fscanf(f_14, "%lg %lg", &flat, &flon))
+        while (fscanf(f_14, "%lg %lg", &flat, &flon) == 2)
         {
             // compute the geocentric latitude, geocentric radius, normal gravity
             double u = egm96_compute_altitude_offset(flat, flon);
