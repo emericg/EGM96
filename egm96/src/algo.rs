@@ -46,6 +46,7 @@
  **/
 
 use std::f64::consts::PI;
+use std::sync::OnceLock;
 
 use crate::egm96_data::EGM96_DATA;
 
@@ -83,7 +84,7 @@ fn hundu(
     gr: f64,
     re: f64,
 ) -> f64 {
-    // WGS 84 gravitational constant in m³/s² (mass of Earth's atmosphere included)
+    // WGS 84 gravitational constant in m^3/s^2 (mass of Earth's atmosphere included)
     const GM: f64 = 0.3986004418e15;
     // WGS 84 datum surface equatorial radius
     const AE: f64 = 6378137.0;
@@ -116,30 +117,25 @@ fn hundu(
 
     // Add haco = ac/100 to convert height anomaly on the ellipsoid to the undulation
     // Add -0.53m to make undulation refer to the WGS84 ellipsoid
+
     ((a * GM) / (gr * re)) + (ac / 100.0) - 0.53
 }
 
-/// Computes all normalized legendre functions
-/// Original programmer: Oscar L. Colombo, Dept. of Geodetic Science the Ohio State University, August 1980.
 fn legfdn(m: usize, theta: f64, rleg: &mut [f64; N361 + 1]) {
-    // Static variables in original C code are made thread_local in Rust
-    thread_local! {
-        static DRTS: Vec<f64> = {
-            let mut v = vec![0.0; (2 * NMAX) + 2];
-            for n in 1..=((2 * NMAX) + 1) {
-                v[n] = (n as f64).sqrt();
-            }
-            v
-        };
+    static DRTS_DIRT: OnceLock<(Vec<f64>, Vec<f64>)> = OnceLock::new();
+    let (drts, dirt) = DRTS_DIRT.get_or_init(|| {
+        let nmax2p = (2 * NMAX) + 1;
+        let mut drts = vec![0.0; 1301];
+        let mut dirt = vec![0.0; 1301];
+        for n in 1..=nmax2p {
+            drts[n] = (n as f64).sqrt();
+            dirt[n] = 1.0 / drts[n];
+        }
 
-        static DIRT: Vec<f64> = {
-            let mut v = vec![0.0; (2 * NMAX) + 2];
-            for n in 1..=((2 * NMAX) + 1) {
-                v[n] = 1.0 / (n as f64).sqrt();
-            }
-            v
-        };
-    }
+        return (drts, dirt);
+    });
+
+    let mut rlnn = [0.0; N361 + 1];
 
     let nmax1 = NMAX + 1;
     let m1 = m + 1;
@@ -149,50 +145,45 @@ fn legfdn(m: usize, theta: f64, rleg: &mut [f64; N361 + 1]) {
     let cothet = theta.cos();
     let sithet = theta.sin();
 
-    DRTS.with(|drts| {
-        DIRT.with(|dirt| {
-            // Compute the legendre functions
-            let mut rlnn = [0.0; N361 + 1];
-            rlnn[1] = 1.0;
-            rlnn[2] = sithet * drts[3];
-            for n1 in 3..=m1 {
+    // compute the legendre functions
+    rlnn[1] = 1.0;
+    rlnn[2] = sithet * drts[3];
+    for n1 in 3..=m1 {
+        let n = n1 - 1;
+        let n2 = 2 * n;
+        rlnn[n1] = drts[n2 + 1] * dirt[n2] * sithet * rlnn[n];
+    }
+
+    match m {
+        1 => {
+            rleg[2] = rlnn[2];
+            rleg[3] = drts[5] * cothet * rleg[2];
+        }
+        0 => {
+            rleg[1] = 1.0;
+            rleg[2] = cothet * drts[3];
+        }
+        _ => {}
+    }
+    rleg[m1] = rlnn[m1];
+
+    if m2 <= nmax1 {
+        rleg[m2] = drts[m1 * 2 + 1] * cothet * rleg[m1];
+        if m3 <= nmax1 {
+            for n1 in m3..=nmax1 {
                 let n = n1 - 1;
+                if (!m == 0 && n < 2) || (m == 1 && n < 3) {
+                    continue;
+                }
                 let n2 = 2 * n;
-                rlnn[n1] = drts[n2 + 1] * dirt[n2] * sithet * rlnn[n];
+                rleg[n1] = drts[n2 + 1]
+                    * dirt[n + m]
+                    * dirt[n - m]
+                    * (drts[n2 - 1] * cothet * rleg[n1 - 1]
+                        - drts[n + m - 1] * drts[n - m - 1] * dirt[n2 - 3] * rleg[n1 - 2]);
             }
-
-            match m {
-                1 => {
-                    rleg[2] = rlnn[2];
-                    rleg[3] = drts[5] * cothet * rleg[2];
-                }
-                0 => {
-                    rleg[1] = 1.0;
-                    rleg[2] = cothet * drts[3];
-                }
-                _ => {}
-            }
-            rleg[m1] = rlnn[m1];
-
-            if m2 <= nmax1 {
-                rleg[m2] = drts[m1 * 2 + 1] * cothet * rleg[m1];
-                if m3 <= nmax1 {
-                    for n1 in m3..=nmax1 {
-                        let n = n1 - 1;
-                        if (!m == 1 && n < 2) || (m == 1 && n < 3) {
-                            continue;
-                        }
-                        let n2 = 2 * n;
-                        rleg[n1] = drts[n2 + 1]
-                            * dirt[n + m]
-                            * dirt[n - m]
-                            * (drts[n2 - 1] * cothet * rleg[n1 - 1]
-                                - drts[n + m - 1] * drts[n - m - 1] * dirt[n2 - 3] * rleg[n1 - 2]);
-                    }
-                }
-            }
-        });
-    });
+        }
+    }
 }
 
 /// Computes geocentric distance, geocentric latitude, and approximate normal gravity
@@ -201,16 +192,15 @@ fn radgra(lat: f64, lon: f64, rlat: &mut f64, gr: &mut f64, re: &mut f64) {
     const E2: f64 = 0.00669437999013;
     const GEQT: f64 = 9.7803253359;
     const K: f64 = 0.00193185265246;
-
-    let t1 = lat.sin() * lat.sin();
+    let t1 = lat.sin().powi(2);
     let n = A / (1.0 - (E2 * t1)).sqrt();
     let t2 = n * lat.cos();
     let x = t2 * lon.cos();
     let y = t2 * lon.sin();
     let z = (n * (1.0 - E2)) * lat.sin();
 
-    *re = ((x * x) + (y * y) + (z * z)).sqrt(); // compute the geocentric radius
-    *rlat = (z / ((x * x) + (y * y)).sqrt()).atan(); // compute the geocentric latitude
+    *re = (x * x + y * y + z * z).sqrt(); // compute the geocentric radius
+    *rlat = (z / (x * x + y * y).sqrt()).atan(); // compute the geocentric latitude
     *gr = GEQT * (1.0 + (K * t1)) / (1.0 - (E2 * t1)).sqrt(); // compute normal gravity (m/sec²)
 }
 
@@ -234,7 +224,7 @@ fn undulation(lat: f64, lon: f64) -> f64 {
         let m = j - 1;
         legfdn(m, rlat, &mut rleg);
         for i in j..=nmax1 {
-            p[(((i - 1) * i) / 2) + m + 1] = rleg[i];
+            p[((i - 1) * i) / 2 + m + 1] = rleg[i];
         }
     }
     dscml(lon, &mut sinml, &mut cosml);
