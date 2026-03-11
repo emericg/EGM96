@@ -126,8 +126,9 @@ void dscml(double rlon, double sinml[_361+1], double cosml[_361+1])
  */
 void legfdn(unsigned m, double theta, double rleg[_361+1])
 {
-    static double drts[1301], dirt[1301], cothet, sithet, rlnn[_361+1];
-    static int ir; // TODO 'ir' must be set to zero before the first call to this sub.
+    thread_local double drts[1301], dirt[1301];
+    thread_local int ir = 0;
+    double cothet, sithet, rlnn[_361+1];
 
     unsigned nmax1 = _nmax + 1;
     unsigned nmax2p = (2 * _nmax) + 1;
@@ -136,7 +137,7 @@ void legfdn(unsigned m, double theta, double rleg[_361+1])
     unsigned m3 = m + 3;
     unsigned n, n1, n2;
 
-    if (!ir)
+    if (ir == 0)
     {
         ir = 1;
         for (n = 1; n <= nmax2p; n++)
