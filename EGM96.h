@@ -21,6 +21,11 @@
 
 #ifndef EGM96_H
 #define EGM96_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* ************************************************************************** */
 
 /*!
@@ -32,4 +37,9 @@
 double egm96_compute_altitude_offset(double latitude, double longitude);
 
 /* ************************************************************************** */
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif // EGM96_H
