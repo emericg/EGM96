@@ -45,6 +45,7 @@
 #include "EGM96_data.h"
 
 #include <math.h>
+#include <threads.h>
 
 /* ************************************************************************** */
 
@@ -126,8 +127,8 @@ void dscml(double rlon, double sinml[_361+1], double cosml[_361+1])
  */
 void legfdn(unsigned m, double theta, double rleg[_361+1])
 {
-    thread_local double drts[1301], dirt[1301];
-    thread_local int ir = 0;
+    static thread_local double drts[1301], dirt[1301];
+    static thread_local int ir = 0;
     double cothet, sithet, rlnn[_361+1];
 
     unsigned nmax1 = _nmax + 1;
