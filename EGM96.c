@@ -59,12 +59,12 @@ double hundu(double p[_coeffs+1],
              double sinml[_361+1], double cosml[_361+1],
              double gr, double re)
 {
-    // WGS 84 gravitational constant in m³/s² (mass of Earth’s atmosphere included)
+    // WGS84 gravitational constant in m³/s² (mass of Earth’s atmosphere included)
     const double GM = 0.3986004418e15;
-    // WGS 84 datum surface equatorial radius
+    // WGS84 datum surface equatorial radius
     const double ae = 6378137.0;
 
-    double ar = ae/re;
+    double ar = ae / re;
     double arn = ar;
     double ac = 0;
     double a = 0;
@@ -74,21 +74,21 @@ double hundu(double p[_coeffs+1],
     {
         arn *= ar;
         k++;
-        double sum = p[k]*egm96_data[k][2];
-        double sumc = p[k]*egm96_data[k][0];
+        double sumc = p[k] * egm96_data[k][0];
+        double sum  = p[k] * egm96_data[k][2];
 
         for (unsigned m = 1; m <= n; m++)
         {
             k++;
-            double tempc = egm96_data[k][0]*cosml[m] + egm96_data[k][1]*sinml[m];
-            double temp  = egm96_data[k][2]*cosml[m] + egm96_data[k][3]*sinml[m];
-            sumc += p[k]*tempc;
-            sum  += p[k]*temp;
+            double tempc = (egm96_data[k][0] * cosml[m]) + (egm96_data[k][1] * sinml[m]);
+            double temp  = (egm96_data[k][2] * cosml[m]) + (egm96_data[k][3] * sinml[m]);
+            sumc += p[k] * tempc;
+            sum  += p[k] * temp;
         }
         ac += sumc;
-        a += sum*arn;
+        a += sum * arn;
     }
-    ac += egm96_data[1][0] + (p[2]*egm96_data[2][0]) + (p[3] * (egm96_data[3][0]*cosml[1] + egm96_data[3][1]*sinml[1]));
+    ac += egm96_data[1][0] + (p[2] * egm96_data[2][0]) + (p[3] * ((egm96_data[3][0] * cosml[1]) + (egm96_data[3][1] * sinml[1])));
 
     // Add haco = ac/100 to convert height anomaly on the ellipsoid to the undulation
     // Add -0.53m to make undulation refer to the WGS84 ellipsoid
@@ -103,19 +103,19 @@ void dscml(double rlon, double sinml[_361+1], double cosml[_361+1])
 
     sinml[1] = a;
     cosml[1] = b;
-    sinml[2] = 2*b*a;
-    cosml[2] = 2*b*b - 1;
+    sinml[2] = (2 * b * a);
+    cosml[2] = (2 * b * b) - 1;
 
     for (unsigned m = 3; m <= _nmax; m++)
     {
-        sinml[m] = 2*b*sinml[m-1] - sinml[m-2];
-        cosml[m] = 2*b*cosml[m-1] - cosml[m-2];
+        sinml[m] = (2 * b * sinml[m-1]) - sinml[m-2];
+        cosml[m] = (2 * b * cosml[m-1]) - cosml[m-2];
     }
 }
 
 /*!
  * \param m: order.
- * \param theta: Colatitude (radians).
+ * \param theta: Colatitude (in radians).
  * \param rleg: Normalized legendre function.
  *
  * This subroutine computes all normalized legendre function in 'rleg'.
@@ -176,7 +176,7 @@ void legfdn(unsigned m, double theta, double rleg[_361+1])
 
     if (m2 <= nmax1)
     {
-        rleg[m2] = drts[m1*2 + 1] * cothet * rleg[m1];
+        rleg[m2] = drts[(2 * m1) + 1] * cothet * rleg[m1];
         if (m3 <= nmax1)
         {
             for (n1 = m3; n1 <= nmax1; n1++)
@@ -184,15 +184,15 @@ void legfdn(unsigned m, double theta, double rleg[_361+1])
                 n = n1 - 1;
                 if ((!m && n < 2) || (m == 1 && n < 3)) continue;
                 n2 = 2 * n;
-                rleg[n1] = drts[n2+1] * dirt[n+m] * dirt[n-m] * (drts[n2-1] * cothet * rleg[n1-1] - drts[n+m-1] * drts[n-m-1] * dirt[n2-3] * rleg[n1-2]);
+                rleg[n1] = drts[n2+1] * dirt[n+m] * dirt[n-m] * ((drts[n2-1] * cothet * rleg[n1-1]) - (drts[n+m-1] * drts[n-m-1] * dirt[n2-3] * rleg[n1-2]));
             }
         }
     }
 }
 
 /*!
- * \param lat: Latitude in radians.
- * \param lon: Longitude in radians.
+ * \param lat: Latitude (in radians).
+ * \param lon: Longitude (in radians).
  * \param re: Geocentric radius.
  * \param rlat: Geocentric latitude.
  * \param gr: Normal gravity (m/sec²).
@@ -221,8 +221,8 @@ void radgra(double lat, double lon, double *rlat, double *gr, double *re)
 
 /*!
  * \brief Compute the geoid undulation from the EGM96 potential coefficient model, for a given latitude and longitude.
- * \param lat: Latitude in radians.
- * \param lon: Longitude in radians.
+ * \param lat: Latitude (in radians).
+ * \param lon: Longitude (in radians).
  * \return The geoid undulation / altitude offset (in meters).
  */
 double undulation(double lat, double lon)
@@ -244,18 +244,18 @@ double undulation(double lat, double lon)
         {
             p[(((i - 1) * i) / 2) + m + 1] = rleg[i];
         }
-     }
-     dscml(lon, sinml, cosml);
+    }
+    dscml(lon, sinml, cosml);
 
-     return hundu(p, sinml, cosml, gr, re);
+    return hundu(p, sinml, cosml, gr, re);
 }
 
 /* ************************************************************************** */
 
-double egm96_compute_altitude_offset(double lat, double lon)
+double egm96_compute_altitude_offset(double latitude, double longitude)
 {
     const double rad = (180.0 / M_PI);
-    return undulation(lat/rad, lon/rad);
+    return undulation(latitude / rad, longitude / rad);
 }
 
 /* ************************************************************************** */
