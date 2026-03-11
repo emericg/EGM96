@@ -1,0 +1,7 @@
+CONFIG += c11
+
+SOURCES += $${PWD}/EGM96.c
+
+HEADERS += $${PWD}/EGM96.h $${PWD}/EGM96_data.h
+
+INCLUDEPATH += $${PWD}

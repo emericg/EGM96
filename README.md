@@ -1,6 +1,8 @@
 EGM96
 =====
 
+Easy to embed C/C++ library for EGM96 altitude offset calculations.
+
 ### Introduction
 
 This code is meant to correct the 'default' altitude measurements given by GPS systems, that measures altitude against the reference ellipsoid and needs to be corrected to match the actual geoid.  
@@ -10,7 +12,8 @@ For a any given point whose latitude and longitude is specified, it will output 
 
 The library is meant to be easy to use, and especially easy to embed into your own softwares.
 
-* Include these three files into your project: _EGM96.c_, _EGM96.h_ and _EGM96_data.h_
+* Include the `CMakeLists.txt` (for CMake project integration) or `EGM96.pri` (for QMake project integration) in your project
+* **OR** include these three files directly into your project: _EGM96.c_, _EGM96.h_ and _EGM96_data.h_
 * Call the _egm96_compute_altitude_offset()_ function:
 
 ```cpp
@@ -51,7 +54,7 @@ This program is a modification of the program described in the following report:
 
 The [World Geodetic System](https://en.wikipedia.org/wiki/World_Geodetic_System) (WGS) is a standard for use in cartography, geodesy, and satellite navigation including GPS. This standard includes the definition of the coordinate system's fundamental and derived constants, the ellipsoidal (normal) [Earth Gravitational Model](https://en.wikipedia.org/wiki/Earth_Gravitational_Model) (EGM), a description of the associated [World Magnetic Model](https://en.wikipedia.org/wiki/World_Magnetic_Model) (WMM), and a current list of local datum transformations.
 
-The **EGM96 geoid defines** the nominal sea level surface by means of a spherical harmonics series of degree 360. The deviations of the EGM96 geoid from the WGS 84 reference ellipsoid range from about −105 m to about +85 m.
+The **EGM96 geoid defines** the nominal sea level surface by means of a spherical harmonics series of degree 360. The deviations of the EGM96 geoid from the WGS84 reference ellipsoid range from about −105 m to about +85 m.
 
 ![geoid](about/EGM96.png)
 
