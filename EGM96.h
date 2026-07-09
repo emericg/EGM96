@@ -53,9 +53,12 @@ extern "C" {
 
 /*!
  * \brief Compute the geoid undulation from the EGM96 potential coefficient model, for a given latitude and longitude.
- * \param latitude: Latitude (in degrees).
- * \param longitude: Longitude (in degrees).
- * \return The geoid undulation / altitude offset (in meters).
+ * \param latitude: Latitude (in degrees). Valid range is [-90, 90].
+ * \param longitude: Longitude (in degrees). Valid range is  [-180, 180].
+ * \return The geoid undulation N (in meters). Roughly −105 m to +85 m depending on the input coordinates.
+ *
+ * Using the geoid undulation N:
+ * orthometric "Mean Sea Level" altitude = "GPS" altitude − N
  */
 double egm96_compute_altitude_offset(double latitude, double longitude);
 

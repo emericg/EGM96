@@ -147,7 +147,7 @@ static void legfdn(const unsigned m, const double theta, double rleg[_361+1])
     const double cothet = cos(theta);
     const double sithet = sin(theta);
 
-    // compute the legendre functions
+    // Compute the legendre functions
     double rlnn[_361+1];
     rlnn[1] = 1;
     rlnn[2] = sithet * drts[3];
@@ -181,13 +181,15 @@ static void legfdn(const unsigned m, const double theta, double rleg[_361+1])
                 n = n1 - 1;
                 if ((!m && n < 2) || (m == 1 && n < 3)) continue;
                 n2 = 2 * n;
-                rleg[n1] = drts[n2+1] * dirt[n+m] * dirt[n-m] * ((drts[n2-1] * cothet * rleg[n1-1]) - (drts[n+m-1] * drts[n-m-1] * dirt[n2-3] * rleg[n1-2]));
+                rleg[n1] = drts[n2+1] * dirt[n+m] * dirt[n-m] *
+                            ((drts[n2-1] * cothet * rleg[n1-1]) - (drts[n+m-1] * drts[n-m-1] * dirt[n2-3] * rleg[n1-2]));
             }
         }
     }
 }
 
 /*!
+ * \brief Compute the geocentric latitude, geocentric radius, normal gravity.
  * \param lat: Latitude (in radians).
  * \param lon: Longitude (in radians).
  * \param re: Geocentric radius.
@@ -211,23 +213,28 @@ static void radgra(const double lat, const double lon, double *rlat, double *gr,
     const double y = t2 * sin(lon);
     const double z = (n * (1 - e2)) * sin(lat);
 
-    *re = sqrt((x * x) + (y * y) + (z * z));            // compute the geocentric radius
-    *rlat = atan2(z, sqrt((x * x) + (y * y)));          // compute the geocentric latitude
-    *gr = geqt * (1 + (k * t1)) / sqrt(1 - (e2 * t1));  // compute normal gravity (m/sec²)
+    // Compute the geocentric radius
+    *re = sqrt((x * x) + (y * y) + (z * z));
+
+    // Compute the geocentric latitude
+    *rlat = atan2(z, sqrt((x * x) + (y * y)));
+
+    // Compute normal gravity (m/sec²)
+    *gr = geqt * (1 + (k * t1)) / sqrt(1 - (e2 * t1));
 }
 
 /*!
  * \brief Compute the geoid undulation from the EGM96 potential coefficient model, for a given latitude and longitude.
  * \param lat: Latitude (in radians).
  * \param lon: Longitude (in radians).
- * \return The geoid undulation / altitude offset (in meters).
+ * \return The geoid undulation (in meters).
  */
 static double undulation(const double lat, const double lon)
 {
     static EGM96_THREAD_LOCAL double p[_coeffs+1], sinml[_361+1], cosml[_361+1], rleg[_361+1];
     double rlat, gr, re;
 
-    // compute the geocentric latitude, geocentric radius, normal gravity
+    // Compute the geocentric latitude, geocentric radius, normal gravity
     radgra(lat, lon, &rlat, &gr, &re);
     rlat = (M_PI / 2) - rlat;
 

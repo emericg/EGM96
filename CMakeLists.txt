@@ -11,7 +11,7 @@ add_library(EGM96 STATIC EGM96.c EGM96.h EGM96_data.h)
 add_library(EGM96::EGM96 ALIAS EGM96)
 
 # Math constants on MSVC
-target_compile_definitions(AppUtils PRIVATE _USE_MATH_DEFINES)
+target_compile_definitions(EGM96 PRIVATE _USE_MATH_DEFINES)
 
 target_include_directories(EGM96 PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
