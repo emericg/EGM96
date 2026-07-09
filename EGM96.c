@@ -52,9 +52,8 @@
 
 /* ************************************************************************** */
 
-double hundu(const double p[_coeffs+1],
-             const double sinml[_361+1], const double cosml[_361+1],
-             const double gr, const double re)
+static double hundu(const double p[_coeffs+1], const double sinml[_361+1], const double cosml[_361+1],
+                    const double gr, const double re)
 {
     // WGS84 gravitational constant in m³/s² (mass of Earth’s atmosphere included)
     const double GM = 0.3986004418e15;
@@ -93,7 +92,7 @@ double hundu(const double p[_coeffs+1],
     return ((a * GM) / (gr * re)) + (ac / 100.0) - 0.53;
 }
 
-void dscml(const double rlon, double sinml[_361+1], double cosml[_361+1])
+static void dscml(const double rlon, double sinml[_361+1], double cosml[_361+1])
 {
     const double a = sin(rlon);
     const double b = cos(rlon);
@@ -122,7 +121,7 @@ void dscml(const double rlon, double sinml[_361+1], double cosml[_361+1])
  * Original programmer: Oscar L. Colombo, Dept. of Geodetic Science the Ohio State University, August 1980.
  * ineiev: I removed the derivatives, for they are never computed here.
  */
-void legfdn(const unsigned m, const double theta, double rleg[_361+1])
+static void legfdn(const unsigned m, const double theta, double rleg[_361+1])
 {
     static EGM96_THREAD_LOCAL double drts[(2 * _nmax) + 2], dirt[(2 * _nmax) + 2];
     static EGM96_THREAD_LOCAL int ir = 0;
@@ -199,7 +198,7 @@ void legfdn(const unsigned m, const double theta, double rleg[_361+1])
  * latitude, and an approximate value of normal gravity at the point based the
  * constants of the WGS84(g873) system are used.
  */
-void radgra(const double lat, const double lon, double *rlat, double *gr, double *re)
+static void radgra(const double lat, const double lon, double *rlat, double *gr, double *re)
 {
     const double a = 6378137.0;
     const double e2 = 0.00669437999013;
@@ -223,7 +222,7 @@ void radgra(const double lat, const double lon, double *rlat, double *gr, double
  * \param lon: Longitude (in radians).
  * \return The geoid undulation / altitude offset (in meters).
  */
-double undulation(const double lat, const double lon)
+static double undulation(const double lat, const double lon)
 {
     static EGM96_THREAD_LOCAL double p[_coeffs+1], sinml[_361+1], cosml[_361+1], rleg[_361+1];
     double rlat, gr, re;
