@@ -23,7 +23,26 @@
 #include "EGM96_data.h"
 
 #include <math.h>
-#include <threads.h>
+
+/* ************************************************************************** */
+
+// Thread-local storage, without requiring the optional C11 <threads.h> header
+#if defined(_MSC_VER)
+#define EGM96_THREAD_LOCAL __declspec(thread)
+#elif defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 202311L)
+#define EGM96_THREAD_LOCAL thread_local
+#elif defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 201112L)
+#define EGM96_THREAD_LOCAL _Thread_local
+#elif defined(__GNUC__)
+#define EGM96_THREAD_LOCAL __thread
+#else
+#define EGM96_THREAD_LOCAL
+#endif
+
+// Provide a fallback for M_PI, which is a POSIX extension, not standard C
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
 
 /* ************************************************************************** */
 
@@ -105,8 +124,8 @@ void dscml(const double rlon, double sinml[_361+1], double cosml[_361+1])
  */
 void legfdn(const unsigned m, const double theta, double rleg[_361+1])
 {
-    static thread_local double drts[1301], dirt[1301];
-    static thread_local int ir = 0;
+    static EGM96_THREAD_LOCAL double drts[(2 * _nmax) + 2], dirt[(2 * _nmax) + 2];
+    static EGM96_THREAD_LOCAL int ir = 0;
 
     const unsigned nmax1 = _nmax + 1;
     const unsigned nmax2p = (2 * _nmax) + 1;
@@ -206,7 +225,7 @@ void radgra(const double lat, const double lon, double *rlat, double *gr, double
  */
 double undulation(const double lat, const double lon)
 {
-    double p[_coeffs+1], sinml[_361+1], cosml[_361+1], rleg[_361+1];
+    static EGM96_THREAD_LOCAL double p[_coeffs+1], sinml[_361+1], cosml[_361+1], rleg[_361+1];
     double rlat, gr, re;
 
     // compute the geocentric latitude, geocentric radius, normal gravity
