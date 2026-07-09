@@ -212,7 +212,7 @@ static void radgra(const double lat, const double lon, double *rlat, double *gr,
     const double z = (n * (1 - e2)) * sin(lat);
 
     *re = sqrt((x * x) + (y * y) + (z * z));            // compute the geocentric radius
-    *rlat = atan(z / sqrt((x * x) + (y * y)));          // compute the geocentric latitude
+    *rlat = atan2(z, sqrt((x * x) + (y * y)));          // compute the geocentric latitude
     *gr = geqt * (1 + (k * t1)) / sqrt(1 - (e2 * t1));  // compute normal gravity (m/sec²)
 }
 
@@ -250,8 +250,21 @@ static double undulation(const double lat, const double lon)
 
 double egm96_compute_altitude_offset(const double latitude, const double longitude)
 {
+    // Non-finite inputs (NaN, ±inf) have no meaningful undulation
+    if (!isfinite(latitude) || !isfinite(longitude)) return 0.0;
+
+    // Clamp latitude to the valid [-90, 90] range
+    double lat = latitude;
+    if (lat >  90.0) lat =  90.0;
+    if (lat < -90.0) lat = -90.0;
+
+    // Wrap longitude into [-180, 180] (it is periodic)
+    double lon = fmod(longitude, 360.0);
+    if (lon >  180.0) lon -= 360.0;
+    else if (lon < -180.0) lon += 360.0;
+
     const double rad = (180.0 / M_PI);
-    return undulation(latitude / rad, longitude / rad);
+    return undulation(lat / rad, lon / rad);
 }
 
 /* ************************************************************************** */
