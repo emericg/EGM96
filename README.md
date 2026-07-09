@@ -1,5 +1,4 @@
-EGM96
-=====
+# EGM96
 
 Easy to embed C/C++ library for EGM96 altitude offset calculations.
 
@@ -31,7 +30,8 @@ double egm96_compute_altitude_offset(double latitude, double longitude);
 
 ### About this implementation
 
-This implementation is a fork of [a project](https://sourceforge.net/projects/egm96-f477-c) by D.Ineiev, which is translation from Fortran to C of another [EGM96 implementation](https://earth-info.nga.mil/GandG/wgs84/gravitymod/egm96/egm96.html) from the [National Geospacial-intelligence Agency](https://earth-info.nga.mil/).
+This implementation is a fork of [a project](https://sourceforge.net/projects/egm96-f477-c) by D.Ineiev,
+which is translation from Fortran to C of another [EGM96 implementation](https://earth-info.nga.mil/GandG/wgs84/gravitymod/egm96/egm96.html) from the [National Geospacial-intelligence Agency](https://earth-info.nga.mil/).
 
 The code has been cleaned up (a lot), the documentation improved, and most importantly the EGM96 correction and harmonic coefficients are now precomputed and embeded into an header file.
 
@@ -52,13 +52,18 @@ This program is a modification of the program described in the following report:
 
 ### About the science
 
-The [World Geodetic System](https://en.wikipedia.org/wiki/World_Geodetic_System) (WGS) is a standard for use in cartography, geodesy, and satellite navigation including GPS. This standard includes the definition of the coordinate system's fundamental and derived constants, the ellipsoidal (normal) [Earth Gravitational Model](https://en.wikipedia.org/wiki/Earth_Gravitational_Model) (EGM), a description of the associated [World Magnetic Model](https://en.wikipedia.org/wiki/World_Magnetic_Model) (WMM), and a current list of local datum transformations.
+The [World Geodetic System](https://en.wikipedia.org/wiki/World_Geodetic_System) (WGS) is a standard for use in cartography, geodesy, and satellite navigation including GPS.
+This standard includes the definition of the coordinate system's fundamental and derived constants, the ellipsoidal (normal) [Earth Gravitational Model](https://en.wikipedia.org/wiki/Earth_Gravitational_Model) (EGM),
+a description of the associated [World Magnetic Model](https://en.wikipedia.org/wiki/World_Magnetic_Model) (WMM), and a current list of local datum transformations.
 
-The **EGM96 geoid defines** the nominal sea level surface by means of a spherical harmonics series of degree 360. The deviations of the EGM96 geoid from the WGS84 reference ellipsoid range from about −105 m to about +85 m.
+The **EGM96 geoid defines** the nominal sea level surface by means of a spherical harmonics series of degree 360.
+The deviations of the EGM96 geoid from the WGS84 reference ellipsoid range from about −105 m to about +85 m.
 
 ![geoid](about/EGM96.png)
 
-In geodesy, a **reference ellipsoid** is a mathematically defined surface that approximates the geoid, which is the truer, imperfect figure of the Earth, or other planetary body, as opposed to a perfect, smooth, and unaltered sphere, which factors in the undulations of the bodies' gravity due to variations in the composition and density of the interior, as well as the subsequent flattening caused by the centrifugal force from the rotation of these massive objects (for planetary bodies that do rotate).
+In geodesy, a **reference ellipsoid** is a mathematically defined surface that approximates the geoid, which is the truer, imperfect figure of the Earth, or other planetary body,
+as opposed to a perfect, smooth, and unaltered sphere, which factors in the undulations of the bodies' gravity due to variations in the composition and density of the interior,
+as well as the subsequent flattening caused by the centrifugal force from the rotation of these massive objects (for planetary bodies that do rotate).
 
 ![geoid vs ellipsoid](about/geoid_vs_ellipsoid.png)
 
@@ -69,6 +74,8 @@ You can browse the code on the GitHub page, submit patches and pull requests! Yo
 
 
 ## License
+
+This project is licensed under the [zlib license](LICENSE.md).
 
 ```
 Copyright (c) 2006 D.Ineiev <ineiev@yahoo.co.uk>
